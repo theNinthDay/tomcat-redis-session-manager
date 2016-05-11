@@ -1,13 +1,7 @@
 package com.orangefunction.tomcat.redissessions;
 
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.*;
 import org.apache.catalina.util.LifecycleSupport;
-import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Loader;
-import org.apache.catalina.Valve;
-import org.apache.catalina.Session;
 import org.apache.catalina.session.ManagerBase;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -708,23 +702,42 @@ public class RedisSessionManager extends ManagerBase implements Lifecycle {
     }
   }
 
-  private void initializeSerializer() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-    log.info("Attempting to use serializer :" + serializationStrategyClass);
-    serializer = (Serializer) Class.forName(serializationStrategyClass).newInstance();
+//  private void initializeSerializer() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+//    log.info("Attempting to use serializer :" + serializationStrategyClass);
+//    serializer = (Serializer) Class.forName(serializationStrategyClass).newInstance();
+//
+//    Loader loader = null;
+//
+//    if (getContainer() != null) {
+//      loader = getContainer().getLoader();
+//    }
+//
+//    ClassLoader classLoader = null;
+//
+//    if (loader != null) {
+//      classLoader = loader.getClassLoader();
+//    }
+//    serializer.setClassLoader(classLoader);
+//  }
 
-    Loader loader = null;
+    private void initializeSerializer() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        log.info("Attempting to use serializer :" + serializationStrategyClass);
+        serializer = (Serializer) Class.forName(serializationStrategyClass).newInstance();
 
-    if (getContainer() != null) {
-      loader = getContainer().getLoader();
+        Loader loader = null;
+        Context context = this.getContext();
+        if (context != null) {
+            loader = context.getLoader();
+        }
+
+        ClassLoader classLoader = null;
+
+        if (loader != null) {
+            classLoader = loader.getClassLoader();
+        }
+        serializer.setClassLoader(classLoader);
     }
 
-    ClassLoader classLoader = null;
-
-    if (loader != null) {
-      classLoader = loader.getClassLoader();
-    }
-    serializer.setClassLoader(classLoader);
-  }
 
 
   // Connection Pool Config Accessors
